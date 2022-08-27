@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: with-custom-container-2
+  name: with-good-layout
 spec:
   pipelineRef:
-    name: cat-git-repo
+    name: git-pipeline
   workspaces:
   - name: shared-data
     volumeClaimTemplate:
