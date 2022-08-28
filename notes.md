@@ -37,6 +37,7 @@ kubectl config set-context j7s-dev --namespace=j7s-dev \
   --cluster=j7s-dev \
   --user=default
 ```
+I'm not sure the above command works...
 
 Stuff I installed from tkn.
 ```
@@ -45,4 +46,26 @@ tkn hub install task ansible-runner
 tkn hub install task git-batch-merge
 ```
 
+Triggers:
+
+Install:
+
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/interceptors.yaml
+
+
+Amabassador: (for knative)
+
+Start with these instruction to disable traefik.
+https://www.suse.com/c/rancher_blog/deploy-an-ingress-controller-on-k3s/
+use `--disable=traefik` in systemd.
+The equal is important...
+
+Follow the instructions https://www.getambassador.io/docs/edge-stack/latest/topics/install/yaml-install/ to install ambassador.
+
+I used the file in ./ambassador/listener.yaml to set up the listener.
+
+I'm not sure why ambassdor is listening on 80 instead of 8080 given the
+settings I applied, or why changing from 8080 to 80 in the seeting borks
+it.
 

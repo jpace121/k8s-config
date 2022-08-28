@@ -1,0 +1,67 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: test-listener
+spec:
+  serviceAccountName: tekton-bot
+  triggers:
+    - name: test-trigger
+      bindings:
+        - ref: message-binding
+      template:
+        ref: pipeline-template
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: pipeline-binding
+spec:
+  params:
+  - name: gitrevision
+    value: $(body.patchSet.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: message-binding
+spec:
+  params:
+  - name: gitrepositoryurl
+    value: ssh://gerrit.internal.jpace121.net:29418/ci/test
+---
+
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template
+spec:
+  params:
+  - name: gitrevision
+    description: The git revision
+    default: main
+  - name: gitrepositoryurl
+    description: The git repository url
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: test-run-
+    spec:
+      pipelineRef:
+        name: git-pipeline
+      params:
+      - name: repo-url
+        value: $(tt.params.gitrepositoryurl)
+      workspaces:
+      - name: shared-data
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                  storage: 1Gi
+      - name: git-credentials
+        secret:
+          secretName: git-credentials

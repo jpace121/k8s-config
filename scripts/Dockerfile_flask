@@ -1,0 +1,11 @@
+FROM docker.io/debian:bullseye-slim
+
+RUN apt update -y && \
+    apt install -y python3-flask && \
+    mkdir /app
+
+COPY test.py /app/test.py
+
+WORKDIR /app
+ENV FLASK_APP=test
+CMD ["flask", "run", "--host", "0.0.0.0"]
