@@ -11,6 +11,9 @@ spec:
         - ref: message-binding
       template:
         ref: pipeline-template
+  resources:
+    kubernetesResource:
+      serviceType: NodePort
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
@@ -28,7 +31,7 @@ metadata:
 spec:
   params:
   - name: gitrepositoryurl
-    value: ssh://gerrit.internal.jpace121.net:29418/ci/test
+    value: ssh://tekton@gerrit.internal.jpace121.net:29418/ci/test
 ---
 
 apiVersion: triggers.tekton.dev/v1beta1
