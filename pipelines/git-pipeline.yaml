@@ -8,6 +8,13 @@ spec:
   - name: repo-url
     type: string
     description: The git repository URL to clone from.
+  - name: commit
+    type: string
+    description: The git hash to checkout.
+  - name: use-gerrit
+    type: string
+    description: Should we report back to gerrit?
+    default: "false"
   workspaces:
   - name: shared-data
     description: Shared data.
@@ -23,9 +30,10 @@ spec:
     params:
     - name: url
       value: $(params.repo-url)
+    - name: commit
+      value: $(params.commit)
     taskRef:
       name: j7s-git-clone
-
   - name: cat-readme
     runAfter: ["fetch-repo"]
     workspaces:
@@ -39,3 +47,41 @@ spec:
         script: |
           set -x
           cat $(workspaces.source.path)/README
+
+  finally:
+    - name: notify-gerrit-success
+      when:
+        - input: $(tasks.status)
+          operator: notin
+          values: ["Failed"]
+        - input: $(params.use-gerrit)
+          operator: in
+          values: ["true"]
+      params:
+        - name: commit
+          value: $(params.commit)
+        - name: build-id
+          value: $(context.pipelineRun.name)
+      workspaces:
+        - name: ssh-directory
+          workspace: git-credentials
+      taskRef:
+        name: j7s-gerrit-success
+    - name: notify-gerrit-failed
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Failed"]
+        - input: $(params.use-gerrit)
+          operator: in
+          values: ["true"]
+      params:
+        - name: commit
+          value: $(params.commit)
+        - name: build-id
+          value: $(context.pipelineRun.name)
+      workspaces:
+        - name: ssh-directory
+          workspace: git-credentials
+      taskRef:
+        name: j7s-gerrit-fail

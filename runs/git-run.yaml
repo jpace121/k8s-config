@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: with-good-layout
+  name: with-good-layout-9
 spec:
   pipelineRef:
     name: git-pipeline
@@ -20,3 +20,7 @@ spec:
   params:
   - name: repo-url
     value: ssh://git@git.jpace121.net:2222/jimmy/tekton-test.git
+  - name: commit
+    value: master
+  - name: use-gerrit
+    value: false
