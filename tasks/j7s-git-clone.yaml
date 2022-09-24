@@ -18,4 +18,6 @@ spec:
       chmod -R 400 ~/.ssh/*
       git clone $(params.url) $(workspaces.output.path)
       cd $(workspaces.output.path)
-      git checkout -f $(params.commit)
+      git fetch origin $(params.commit)
+      git checkout -f $(params.commit) -b pr-check
+      git rebase origin/main

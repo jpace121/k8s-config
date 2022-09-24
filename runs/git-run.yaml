@@ -18,9 +18,13 @@ spec:
     secret:
       secretName: git-credentials
   params:
-  - name: repo-url
+  - name: clone_url
     value: ssh://git@git.jpace121.net:2222/jimmy/tekton-test.git
   - name: commit
     value: master
   - name: use-gerrit
     value: false
+  - name: feedback_url
+    value: ""
+  - name: feedback_port
+    value: ""

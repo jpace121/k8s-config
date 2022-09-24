@@ -17,12 +17,18 @@ spec:
     spec:
       containers:
       - name: tekton-hook-bot
-        image: 192.168.1.128:8443/tekton-hooks-bot:0.3
+        image: 192.168.1.128:8443/tekton-hooks-bot:0.7
         env:
           - name: LISTEN_ADDR
             value: 0.0.0.0:3000
           - name: SERVICE_ADDR
-            value: el-test-listener:8080
+            value: http://el-git-pipeline-listener.default.svc.cluster.local:8080
+          - name: CLONE_URL
+            value: "ssh://tekton@gerrit.internal.jpace121.net:29418"
+          - name: FEEDBACK_URL
+            value: "tekton@gerrit.internal.jpace121.net"
+          - name: FEEDBACK_PORT
+            value: "29418"
         ports:
           - containerPort: 3000
             name: service-port

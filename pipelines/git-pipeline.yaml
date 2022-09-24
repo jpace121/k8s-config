@@ -5,12 +5,18 @@ metadata:
 spec:
   description: A test pipeline.
   params:
-  - name: repo-url
+  - name: clone_url
     type: string
     description: The git repository URL to clone from.
   - name: commit
     type: string
     description: The git hash to checkout.
+  - name: feedback_url
+    type: string
+    description: The url to ssh into to post feedback using gerrit.
+  - name: feedback_port
+    type: string
+    description: The port on the feedback url to use to post feedback.
   - name: use-gerrit
     type: string
     description: Should we report back to gerrit?
@@ -29,7 +35,7 @@ spec:
       workspace: git-credentials
     params:
     - name: url
-      value: $(params.repo-url)
+      value: $(params.clone_url)
     - name: commit
       value: $(params.commit)
     taskRef:
