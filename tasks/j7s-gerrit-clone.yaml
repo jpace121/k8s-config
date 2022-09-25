@@ -1,22 +1,23 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: j7s-gerrit-success
+  name: j7s-gerrit-clone
 spec:
   workspaces:
+  - name: output
   - name: ssh-directory
   params:
+  - name: url
   - name: commit
-  - name: build-id
   steps:
   - image: 192.168.1.128:8443/gitssh:latest
     script: |
-      #!/usr/bin/env bash
-      set -ex
+      set -x
       cp -r $(workspaces.ssh-directory.path) ~/.ssh
       chmod 700 ~/.ssh
       chmod -R 400 ~/.ssh/*
-      ssh -p 29418 tekton@gerrit.internal.jpace121.net gerrit review \
-          -m '"Build success. ID: $(params.build-id)"' \
-          --verified +1 \
-          $(params.commit)
+      git clone $(params.url) $(workspaces.output.path)
+      cd $(workspaces.output.path)
+      git fetch origin $(params.commit)
+      git checkout -f $(params.commit) -b pr-check
+      git rebase origin/main

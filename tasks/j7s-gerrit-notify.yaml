@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-gerrit-notify
+spec:
+  workspaces:
+  - name: ssh-directory
+  params:
+  - name: commit
+  - name: build-id
+  - name: status
+  - name: feedback_url
+  - name: feedback_port
+  steps:
+  - image: 192.168.1.128:8443/gitssh:latest
+    script: |
+      #!/usr/bin/env bash
+      set -ex
+      cp -r $(workspaces.ssh-directory.path) ~/.ssh
+      chmod 700 ~/.ssh
+      chmod -R 400 ~/.ssh/*
+
+      case "$(params.status)" in
+         "Succeeded" | "Completed")
+            ssh -p $(params.feedback_port) $(params.feedback_url) gerrit review \
+                -m '"Build succeeded. ID: $(params.build-id)"' \
+                --verified +1 \
+                $(params.commit)
+           ;;
+         "Failed" | "None")
+            ssh -p $(params.feedback_port) $(params.feedback_url) gerrit review \
+                -m '"Build failed. ID: $(params.build-id)"' \
+                --verified -1 \
+                $(params.commit)
+           ;;
+      esac
