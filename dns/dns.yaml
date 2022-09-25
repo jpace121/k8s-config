@@ -9,7 +9,7 @@ data:
         errors
         health
         hosts {
-          192.168.1.138 gerrit.internal.jpace121.net
+          192.168.1.128 tekton.internal.jpace121.net
           192.168.1.128 k3s
           fallthrough
         }

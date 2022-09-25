@@ -24,9 +24,9 @@ spec:
           - name: SERVICE_ADDR
             value: http://el-gerrit-pipeline-listener.default.svc.cluster.local:8080
           - name: CLONE_URL
-            value: "ssh://tekton@gerrit.internal.jpace121.net:29418"
+            value: "ssh://tekton@gerrit.jpace121.net:29418"
           - name: FEEDBACK_URL
-            value: "tekton@gerrit.internal.jpace121.net"
+            value: "tekton@gerrit.jpace121.net"
           - name: FEEDBACK_PORT
             value: "29418"
         ports:
