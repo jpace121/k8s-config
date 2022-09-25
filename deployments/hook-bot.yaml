@@ -22,7 +22,7 @@ spec:
           - name: LISTEN_ADDR
             value: 0.0.0.0:3000
           - name: SERVICE_ADDR
-            value: http://el-git-pipeline-listener.default.svc.cluster.local:8080
+            value: http://el-gerrit-pipeline-listener.default.svc.cluster.local:8080
           - name: CLONE_URL
             value: "ssh://tekton@gerrit.internal.jpace121.net:29418"
           - name: FEEDBACK_URL

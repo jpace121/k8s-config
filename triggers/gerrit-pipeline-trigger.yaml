@@ -2,15 +2,15 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: git-pipeline-listener
+  name: gerrit-pipeline-listener
 spec:
   serviceAccountName: tekton-bot
   triggers:
-    - name: git-pipeline-trigger
+    - name: gerrit-pipeline-trigger
       bindings:
-        - ref: git-pipeline-binding
+        - ref: gerrit-pipeline-binding
       template:
-        ref: git-pipeline-template
+        ref: gerrit-pipeline-template
   resources:
     kubernetesResource:
       serviceType: ClusterIP
@@ -18,7 +18,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: git-pipeline-binding
+  name: gerrit-pipeline-binding
 spec:
   params:
   - name: commit
@@ -36,7 +36,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: git-pipeline-template
+  name: gerrit-pipeline-template
 spec:
   params:
   - name: commit
@@ -51,7 +51,7 @@ spec:
       generateName: test-run-
     spec:
       pipelineRef:
-        name: git-pipeline
+        name: gerrit-pipeline
       params:
       - name: commit
         value: $(tt.params.commit)
