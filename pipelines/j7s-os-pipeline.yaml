@@ -1,0 +1,46 @@
+# A pipeline to build j7s-os images.
+# Steps:
+#   Clone the j7s-os repo from gitea.
+#   Call make <> in the repo.
+#   Build and push a new deployment container.
+#   Deply the deployment container as a service.
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: j7s-os-pipeline
+spec:
+  description: Build and deploy j7s-os images.
+  params:
+  - name: image-name
+    type: string
+    description: The name of the os image to build.
+  workspaces:
+  - name: shared-data
+    description: Shared data.
+  - name: git-credentials
+    description: My ssh credentials
+  tasks:
+  - name: fetch-repo
+    workspaces:
+    - name: output
+      workspace: shared-data
+    - name: ssh-directory
+      workspace: git-credentials
+    params:
+    - name: url
+      value: ssh://git@git.jpace121.net:2222/jimmy/j7s-os.git
+    - name: branch
+      value: main
+    taskRef:
+      name: j7s-git-clone
+  - name: call-make
+    runAfter: ["fetch-repo"]
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+    - name: image-name
+      value: $(params.image-name)
+    taskRef:
+      name: j7s-os-image-build

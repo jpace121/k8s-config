@@ -1,0 +1,9 @@
+FROM quay.io/centos/centos:stream9
+RUN dnf install -y 'dnf-command(copr)' && \
+    dnf copr enable -y @osbuild/osbuild && \
+    dnf install -y osbuild osbuild-tools osbuild-ostree make sudo
+RUN useradd -m -G wheel -s /bin/bash -u 1000 j7s && \
+    bash -c 'echo "%wheel  ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers.d/container' && \
+    chmod 0440 /etc/sudoers.d/container
+USER j7s
+ENTRYPOINT ["bash"]

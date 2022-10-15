@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-os-image-build
+spec:
+  workspaces:
+  - name: source
+  params:
+  - name: image-name
+  steps:
+  - image: 192.168.1.128:8443/j7s-image-build:latest
+    securityContext:
+      privileged: true
+    script: |
+      set -x
+      sudo chown -R j7s:j7s $(workspaces.source.path)
+      cd $(workspaces.source.path)
+      make $(params.image-name)

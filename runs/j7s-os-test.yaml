@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: j7s-os-test
+spec:
+  pipelineRef:
+    name: j7s-os-pipeline
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 3Gi
+  - name: git-credentials
+    secret:
+      secretName: git-credentials
+  params:
+  - name: image-name
+    value: cs9-qemu-minimal-ostree.x86_64.repo
