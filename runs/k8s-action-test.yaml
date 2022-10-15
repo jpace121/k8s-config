@@ -1,0 +1,13 @@
+
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: k8s-action-test
+spec:
+  serviceAccountName: internal-kubectl
+  taskRef:
+    name: kubernetes-actions
+  params:
+    - name: script
+      value: |
+        kubectl get deploy
