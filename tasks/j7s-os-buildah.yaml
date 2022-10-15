@@ -1,0 +1,48 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-os-buildah
+spec:
+  description: Build the deployment container image for j7s-os.
+  params:
+  - name: image
+    description: Reference of the image buildah will produce.
+  - name: commit
+    description: Repo directory to put inside the image.
+  - name: registry
+    description: Registry to push to.
+  workspaces:
+  - name: source
+  steps:
+  - name: build
+    image: quay.io/buildah/stable:v1.23.3
+    workingDir: $(workspaces.source.path)
+    script: |
+      # Login
+      buildah login --tls-verify=false --username=$USERNAME --password=$PASSWORD $(params.registry)
+      # Build
+      buildah --storage-driver=overlay bud --tls-verify=false --no-cache \
+        --build-arg commit=./$(params.commit) \
+        -f ./hosting/Dockerfile -t $(params.image) .
+      # Push
+      buildah --storage-driver=overlay push --tls-verify=false $(params.image) docker://$(params.registry)/$(params.image)
+    env:
+    - name: USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: registry-login-secret
+          key: username
+    - name: PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: registry-login-secret
+          key: password
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+    securityContext:
+      privileged: true
+  volumes:
+  - name: varlibcontainers
+    emptyDir: {}
