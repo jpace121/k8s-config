@@ -19,6 +19,7 @@ spec:
     image: quay.io/buildah/stable:v1.23.3
     workingDir: $(workspaces.source.path)
     script: |
+      set -x
       # Login
       buildah login --tls-verify=false --username=$USERNAME --password=$PASSWORD $(params.registry)
       # Build

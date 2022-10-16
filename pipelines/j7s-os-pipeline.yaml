@@ -44,3 +44,17 @@ spec:
       value: $(params.image-name)
     taskRef:
       name: j7s-os-image-build
+  - name: build-deploy-image
+    runAfter: ["call-make"]
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+    - name: commit
+      value: $(params.image-name)
+    - name: image
+      value: j7s-os-deploy:latest
+    - name: registry
+      value: 192.168.1.128:8443
+    taskRef:
+      name: j7s-os-buildah
