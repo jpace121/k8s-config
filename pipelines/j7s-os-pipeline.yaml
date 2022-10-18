@@ -58,3 +58,12 @@ spec:
       value: 192.168.1.128:8443
     taskRef:
       name: j7s-os-buildah
+  - name: patch-deployment
+    runAfter: ["build-deploy-image"]
+    params:
+    - name: deployment
+      value: j7s-os-app-deployment
+    - name: image
+      value: 192.168.1.128:8443/j7s-os-deploy:latest
+    taskRef:
+      name: j7s-os-k8s-deploy

@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-os-k8s-deploy
+spec:
+  params:
+    - name: deployment
+      description: The name of the deployment to patch.
+    - name: image
+      description: The image to deploy.
+  steps:
+    - name: kubectl
+      image: gcr.io/cloud-builders/kubectl@sha256:c855d060ac961bc7e6bff42d6b9d9ebebee304eca4cce4a2202e51a5da26c043
+      script: |
+        #!/usr/bin/env bash
+        set -x
+        kubectl version
+        kubectl patch deployment $(params.deployment) --patch-file=/dev/stdin <<EOF
+        spec:
+           template:
+              spec:
+                  containers:
+                  - name: j7s-os-app
+                    image: $(params.image)
+        EOF

@@ -10,4 +10,5 @@ spec:
   params:
     - name: script
       value: |
+        kubectl version
         kubectl get deploy

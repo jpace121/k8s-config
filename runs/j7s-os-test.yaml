@@ -20,3 +20,4 @@ spec:
   params:
   - name: image-name
     value: cs9-qemu-minimal-ostree.x86_64.repo
+  serviceAccountName: internal-kubectl
