@@ -3,7 +3,7 @@
 #   Clone the j7s-os repo from gitea.
 #   Call make <> in the repo.
 #   Build and push a new deployment container.
-#   Deply the deployment container as a service.
+#   Deploy the deployment container as a service.
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -12,9 +12,12 @@ metadata:
 spec:
   description: Build and deploy j7s-os images.
   params:
-  - name: image-name
+  - name: make-image-name
     type: string
-    description: The name of the os image to build.
+    description: The name of image to make in the os repo.
+  - name: short-name
+    type: string
+    description: A short name for this image from which other names a derived. (aka j7-os)
   workspaces:
   - name: shared-data
     description: Shared data.
@@ -34,36 +37,40 @@ spec:
       value: main
     taskRef:
       name: j7s-git-clone
-  - name: call-make
+  - name: image-build
     runAfter: ["fetch-repo"]
     workspaces:
     - name: source
       workspace: shared-data
     params:
     - name: image-name
-      value: $(params.image-name)
+      value: $(params.make-image-name)
     taskRef:
       name: j7s-os-image-build
   - name: build-deploy-image
-    runAfter: ["call-make"]
+    runAfter: ["image-build"]
     workspaces:
     - name: source
       workspace: shared-data
     params:
     - name: commit
-      value: $(params.image-name)
+      value: $(params.make-image-name)
     - name: image
-      value: j7s-os-deploy:latest
+      value: $(params.short-name)-deploy
     - name: registry
       value: 192.168.1.128:8443
+    - name: version
+      value: $(tasks.image-build.results.version-string)
     taskRef:
       name: j7s-os-buildah
   - name: patch-deployment
     runAfter: ["build-deploy-image"]
     params:
     - name: deployment
-      value: j7s-os-app-deployment
+      value: $(params.short-name)-app-deployment
     - name: image
-      value: 192.168.1.128:8443/j7s-os-deploy:latest
+      value: 192.168.1.128:8443/$(params.short-name)-deploy
+    - name: version
+      value: $(tasks.image-build.results.version-string)
     taskRef:
       name: j7s-os-k8s-deploy

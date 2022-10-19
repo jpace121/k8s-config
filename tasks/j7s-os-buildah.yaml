@@ -12,6 +12,8 @@ spec:
     description: Repo directory to put inside the image.
   - name: registry
     description: Registry to push to.
+  - name: version
+    description: Version for the image.
   workspaces:
   - name: source
   steps:
@@ -25,9 +27,9 @@ spec:
       # Build
       buildah --storage-driver=overlay bud --tls-verify=false --no-cache \
         --build-arg commit=./$(params.commit) \
-        -f ./hosting/Dockerfile -t $(params.image) .
+        -f ./hosting/Dockerfile -t $(params.image):$(params.version) .
       # Push
-      buildah --storage-driver=overlay push --tls-verify=false $(params.image) docker://$(params.registry)/$(params.image)
+      buildah --storage-driver=overlay push --tls-verify=false $(params.image) docker://$(params.registry)/$(params.image):$(params.version)
     env:
     - name: USERNAME
       valueFrom:

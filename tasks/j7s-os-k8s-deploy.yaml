@@ -8,6 +8,8 @@ spec:
       description: The name of the deployment to patch.
     - name: image
       description: The image to deploy.
+    - name: version
+      description: The version of the image to deploy.
   steps:
     - name: kubectl
       image: gcr.io/cloud-builders/kubectl@sha256:c855d060ac961bc7e6bff42d6b9d9ebebee304eca4cce4a2202e51a5da26c043
@@ -21,5 +23,5 @@ spec:
               spec:
                   containers:
                   - name: j7s-os-app
-                    image: $(params.image)
+                    image: $(params.image):$(params.version)
         EOF
