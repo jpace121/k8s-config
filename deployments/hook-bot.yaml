@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: tekton-hook-bot
-        image: 192.168.1.128:8443/tekton-hooks-bot:0.8
+        image: 192.168.1.128:8443/tekton-hooks-bot:0.11
         env:
           - name: LISTEN_ADDR
             value: 0.0.0.0:3000
