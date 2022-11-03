@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: squid-deployment
+  labels:
+    app: squid
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: squid
+  template:
+    metadata:
+      labels:
+        app: squid
+    spec:
+      containers:
+      - name: squid
+        image: 192.168.1.128:8443/squid:0.3
+        volumeMounts:
+          - mountPath: /var/spool/squid
+            name: squid-volume
+        ports:
+          - containerPort: 3128
+            name: squid-port
+      volumes:
+      - name: squid-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: squid-service
+spec:
+  selector:
+    app: squid
+  ports:
+    - protocol: TCP
+      targetPort: 3128
+      port: 3128
+      name: squid-port

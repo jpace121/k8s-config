@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cache-check
+spec:
+  template:
+    spec:
+      containers:
+      - name: cache-check
+        image: docker.io/debian:bullseye-slim
+        env:
+        - name: http_proxy
+          value: http://squid-service:3128
+        command: ["bash"]
+        args:
+          - "-c"
+          - >-
+            apt update -y &&
+            apt upgrade -y
+      restartPolicy: Never
+  backoffLimit: 1
