@@ -1,0 +1,52 @@
+# A pipeline to build and deploy dev_contain packages.
+# Steps:
+#   Clone the dev_contain repo from gitea and checkout packaging branch.
+#   Call ansible play to build.
+#   Optionally, call play to deploy
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: dev-contain-pipeline
+spec:
+  description: "Build and deploy dev_contain packages."
+  params:
+  - name: branch
+    type: string
+    description: The branch in the repo to call the build script in.
+  - name: deploy
+    type: string
+    description: "'true' if we should deploy the image using ansible."
+  workspaces:
+  - name: shared-data
+    description: Shared data.
+  - name: git-credentials
+    description: tekton git credentials
+  - name: deploy-credentials
+    description: tekton credentials to deployment server
+  tasks:
+  - name: fetch-repo
+    workspaces:
+    - name: output
+      workspace: shared-data
+    - name: ssh-directory
+      workspace: git-credentials
+    params:
+    - name: url
+      value: ssh://git@git.jpace121.net:2222/packaging/dev_contain.git
+    - name: branch
+      value: $(params.branch)
+    taskRef:
+      name: j7s-git-clone
+  - name: build
+    runAfter: ["fetch-repo"]
+    workspaces:
+    - name: source
+      workspace: shared-data
+    - name: ssh-directory
+      workspace: deploy-credentials
+    params:
+    - name: deploy
+      value: $(params.deploy)
+    taskRef:
+      name: j7s-ansible-build

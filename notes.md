@@ -44,6 +44,22 @@ Restart k3s.
 
 Apply rest of the CRDs.
 
+# SSH Secrets
+
+1. `ssh-keygen -t ecdsa -f ./deploy_key`
+2. `ssh-keyscan packages.jpace121.net > ./deploy_known_hosts`
+3. `cat deploy-credentials.yaml`
+   ```
+    apiVersion: v1
+    kind: Secret
+    metadata:
+        name: deploy-credentials
+    type: Opaque
+    data:
+        id_ecdsa: <base64 -w 0 .. >
+        known_hosts: <base64 -w 0 ..>
+  ```
+
 
 # Bad Ideas
 

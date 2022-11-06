@@ -1,0 +1,4 @@
+FROM quay.io/podman/stable:v4.2.1
+
+RUN dnf update && \
+    dnf install -y ansible git

@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-ansible-build
+spec:
+  workspaces:
+  - name: source
+  - name: ssh-directory
+  params:
+  - name: deploy
+  steps:
+  - image: 192.168.1.128:8443/ansible-podman:latest
+    securityContext:
+      privileged: true
+    script: |
+      #!/usr/bin/env bash
+      set -ex
+      cp -r $(workspaces.ssh-directory.path) ~/.ssh
+      chmod 700 ~/.ssh
+      chmod -R 400 ~/.ssh/*
+
+      cd $(workspaces.source.path)
+      ansible-playbook -vvvv --skip-tags deploy -i inventory.yaml build.yaml
+
+      if [[ $(params.deploy) == "true" ]]; then
+        ansible-playbook -vvvv --tags deploy -i inventory.yaml build.yaml
+      fi
