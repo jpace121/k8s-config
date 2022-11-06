@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: j7s-os-test
+  generateName: j7s-os-test-
 spec:
   pipelineRef:
     name: j7s-os-pipeline

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: dev-contain-rpm
+  generateName: dev-contain-rpm-
 spec:
   pipelineRef:
     name: dev-contain-pipeline

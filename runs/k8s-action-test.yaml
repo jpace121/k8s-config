@@ -1,8 +1,7 @@
-
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: k8s-action-test
+  generateName: k8s-action-test-
 spec:
   serviceAccountName: internal-kubectl
   taskRef:
