@@ -23,7 +23,6 @@ Install Tekton:
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/interceptors.yaml
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
 ```
 Set up local registry on master.
 (I didn't document this process.)
@@ -60,6 +59,15 @@ Apply rest of the CRDs.
         known_hosts: <base64 -w 0 ..>
   ```
 
+# Set up Tekton Dashboard:
+```
+curl -sL https://raw.githubusercontent.com/tektoncd/dashboard/main/scripts/release-installer | \
+   bash -s -- install latest --read-only
+```
+Port forward locally:
+```
+kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
+```
 
 # Bad Ideas
 
@@ -81,14 +89,6 @@ it.
 I removed amabassador andput back traefik.
 
 
-Set up Tekton Dashboard:
-```
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
-```
-Port forward locally:
-```
-kubectl port-forward -n tekton-pipelines service/tekton-dashboard 9097:9097
-```
 
 If we later want to do this on an overlay network:
 3. For master:
