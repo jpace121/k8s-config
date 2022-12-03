@@ -32,7 +32,7 @@ spec:
       workspace: git-credentials
     params:
     - name: url
-      value: ssh://git@git.jpace121.net:2222/jimmy/j7s-os.git
+      value: ssh://git@git.jpace121.net:2222/public/j7s-os
     - name: branch
       value: main
     taskRef:

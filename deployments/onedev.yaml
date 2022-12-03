@@ -1,0 +1,337 @@
+# Roughly from help chart, but needed to change ingress.
+---
+# Source: onedev/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: onedev/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: onedev-mysql
+stringData:
+  password: changeit
+---
+# Source: onedev/templates/persistentvolumeclaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: onedev
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+# Source: onedev/templates/persistentvolumeclaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: onedev-mysql
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: mysql
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+# Source: onedev/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "create", "delete"] #require this permission to run builds in isolated namespaces
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterrolebindings"]
+    verbs: ["get", "list", "create", "delete"] #require this permission to bind cluster roles to service account of running builds
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"] #require this permission to search nodes matching executor criterias
+  - apiGroups: [""]
+    resources: ["services", "pods", "pods/log", "pods/exec", "secrets", "configmaps", "events"]
+    verbs: ["get", "list", "watch", "create", "patch", "delete"] #require this permission to run builds as pods
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "create", "patch", "delete"] #require this permission to run builds as pods
+---
+# Source: onedev/templates/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+subjects:
+  - kind: ServiceAccount
+    namespace: default
+    name: onedev
+roleRef:
+  kind: ClusterRole
+  name: onedev
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: onedev/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: onedev
+  annotations:
+    null
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 6610
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    tier: onedev
+---
+# Source: James Custom
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onedev-ssh
+spec:
+  type: NodePort
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: 6611
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    tier: onedev
+---
+# Source: onedev/templates/service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onedev-mysql
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    tier: mysql
+---
+# Source: onedev/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onedev
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: onedev
+spec:
+  replicas: 1 # only allow one replicas as OneDev doesn't support clustering
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: onedev
+      app.kubernetes.io/instance: onedev
+      tier: onedev
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: onedev
+      labels:
+        app.kubernetes.io/name: onedev
+        app.kubernetes.io/instance: onedev
+        tier: onedev
+    spec:
+      serviceAccountName: onedev
+      nodeSelector: 
+        kubernetes.io/os: linux
+      containers:
+        - name: onedev
+          resources:
+            requests:
+              memory: 1024Mi
+          volumeMounts:
+          - mountPath: "/opt/onedev"
+            name: onedev
+          image: "1dev/server:7.8.5"
+          ports:
+            - containerPort: 6610
+            - containerPort: 6611
+          env:
+          - name: k8s_service
+            value: onedev
+          - name: ingress_host
+            value: git.jpace121.net
+          - name: ingress_tls
+            value: "false"
+          - name: hibernate_dialect
+            value: org.hibernate.dialect.MySQL5InnoDBDialect
+          - name: hibernate_connection_driver_class
+            value: com.mysql.cj.jdbc.Driver
+          - name: hibernate_connection_url
+            value: jdbc:mysql://onedev-mysql:3306/onedev?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+          - name: hibernate_connection_username
+            value: root
+          - name: hibernate_connection_password
+            valueFrom:
+              secretKeyRef:
+                name: onedev-mysql
+                key: password
+          - name: hibernate_hikari_maximumPoolSize
+            value: "25"
+      initContainers:
+        - name: init
+          image: busybox
+          command: ["sh", "-c", "until nslookup onedev-mysql.default.svc.cluster.local; do echo waiting for mysql; sleep 2; done;"]
+      volumes:
+        - name: onedev
+          persistentVolumeClaim:
+            claimName: onedev
+---
+# Source: onedev/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onedev-mysql
+  labels:
+    helm.sh/chart: onedev-7.8.5
+    app.kubernetes.io/name: onedev
+    app.kubernetes.io/instance: onedev
+    app.kubernetes.io/version: "7.8.5"
+    app.kubernetes.io/managed-by: Helm
+    tier: mysql
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: onedev
+      app.kubernetes.io/instance: onedev
+      tier: mysql 
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: onedev-mysql
+      labels:
+        app.kubernetes.io/name: onedev
+        app.kubernetes.io/instance: onedev
+        tier: mysql
+    spec:
+      nodeSelector: 
+        kubernetes.io/os: linux
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          args:
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+            - "--ignore-db-dir=lost+found"
+          env:
+            - name: MYSQL_DATABASE
+              value: onedev
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: onedev-mysql
+                  key: password
+          ports:
+            - containerPort: 3306
+          resources:
+            requests:
+              memory: 256Mi
+          volumeMounts:
+            - name: mysql
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - "-c"
+                - |
+                  mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 1
+      volumes:
+        - name: mysql
+          persistentVolumeClaim:
+            claimName: onedev-mysql
+---
+# Source: onedev/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: onedev
+spec:
+  rules:
+    - host: git.jpace121.net
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: onedev
+              port:
+                number: 80

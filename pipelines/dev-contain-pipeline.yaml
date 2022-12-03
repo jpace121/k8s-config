@@ -33,7 +33,7 @@ spec:
       workspace: git-credentials
     params:
     - name: url
-      value: ssh://git@git.jpace121.net:2222/packaging/dev_contain.git
+      value: ssh://git@git.jpace121.net:2222/packaging/dev_contain
     - name: branch
       value: $(params.branch)
     taskRef:
