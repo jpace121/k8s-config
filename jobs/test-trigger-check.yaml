@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-trigger-check
+spec:
+  template:
+    spec:
+      containers:
+      - name: test-trigger-check
+        image: docker.io/debian:bullseye-slim
+        env:
+        - name: http_proxy
+          value: http://squid-service:3128
+        command: ["bash"]
+        args:
+          - "-c"
+          - >-
+            apt update -y &&
+            apt upgrade -y &&
+            apt install -y curl &&
+            curl -X POST http://el-test-pipeline-listener.default.svc.cluster.local:8080 -H 'Content-Type: application/json' -d '{}'
+      restartPolicy: Never
+  backoffLimit: 0

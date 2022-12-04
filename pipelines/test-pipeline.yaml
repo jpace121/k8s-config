@@ -1,0 +1,41 @@
+# A pipeline to test the infrasture around calling pipelines.
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: test-pipeline
+spec:
+  description: "A test pipeline."
+  workspaces:
+  - name: shared-data
+    description: Shared data.
+  - name: git-credentials
+    description: tekton git credentials
+  tasks:
+  - name: fetch-repo
+    workspaces:
+    - name: output
+      workspace: shared-data
+    - name: ssh-directory
+      workspace: git-credentials
+    params:
+    - name: url
+      value: ssh://git.jpace121.net:2222/job-test
+    - name: branch
+      value: master
+    taskRef:
+      name: j7s-git-clone
+  - name: cat-readme
+    runAfter: ["fetch-repo"]
+    workspaces:
+    - name: source
+      workspace: shared-data
+    taskSpec:
+      workspaces:
+      - name: source
+      steps:
+      - image: docker.io/debian:bullseye-slim
+        script: |
+          set -x
+          cat $(workspaces.source.path)/README.md
+          exit 0

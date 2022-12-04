@@ -1,0 +1,56 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: test-pipeline-listener
+spec:
+  serviceAccountName: tekton-bot
+  triggers:
+    - name: test-pipeline-trigger
+      bindings:
+        - ref: test-pipeline-binding
+      template:
+        ref: test-pipeline-template
+  resources:
+    kubernetesResource:
+      serviceType: ClusterIP
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: test-pipeline-binding
+spec:
+  params:
+    - name: empty
+      value: empty
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: test-pipeline-template
+spec:
+  params:
+  - name: should-fail
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: test-pipeline-
+    spec:
+      pipelineRef:
+        name: test-pipeline
+      params:
+      - name: should-fail
+        value: "$(tt.params.should-fail)"
+      workspaces:
+      - name: shared-data
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                  storage: 1Gi
+      - name: git-credentials
+        secret:
+          secretName: git-credentials
