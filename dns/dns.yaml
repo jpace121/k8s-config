@@ -12,6 +12,7 @@ data:
           192.168.1.128 tekton.internal.jpace121.net
           192.168.1.128 k3s
           192.168.1.135 k3s-node1
+          10.100.100.1 git.jpace121.net
           fallthrough
         }
         ready
