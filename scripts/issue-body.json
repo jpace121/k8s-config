@@ -1,0 +1,10 @@
+{
+"projectId" : 9 ,
+"title" : "Hi From Curl" ,
+"description" : "This was posted from curl." ,
+"confidential" : false ,
+"milestoneIds" : [ ] ,
+"fields" : {
+"Type" : "Build Failure"
+}
+}
