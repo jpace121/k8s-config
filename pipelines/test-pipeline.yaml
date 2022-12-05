@@ -38,4 +38,19 @@ spec:
         script: |
           set -x
           cat $(workspaces.source.path)/README.md
-          exit 0
+          exit -1
+  finally:
+    - name: notify-onedev
+      params:
+        - name: tekton-login-secret-name
+          value: onedev-api-key
+        - name: feedback-url
+          value: https://git.jpace121.net/
+        - name: project-id
+          value: 9
+        - name: run-name
+          value: $(context.pipelineRun.name)
+        - name: status
+          value: $(tasks.status)
+      taskRef:
+        name: j7s-onedev-file-bug

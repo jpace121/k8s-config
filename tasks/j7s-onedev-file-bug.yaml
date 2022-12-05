@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: j7s-onedev-file-bug
+spec:
+  params:
+  - name: tekton-login-secret-name
+  - name: feedback-url
+  - name: project-id
+  - name: run-name
+  - name: status
+  steps:
+  - image: 192.168.1.128:8443/curl:latest
+    script: |
+      #!/usr/bin/env bash
+      set -ex
+
+      case "$(params.status)" in
+         "Succeeded" | "Completed")
+            echo "Build was successful!"
+           ;;
+         "Failed" | "None")
+            echo "Build failed. :("
+            echo '{"projectId": 0, "title": "", "description": "Build Failed!",
+                   "confidential": false, "milestoneIds": [],
+                   "fields": {"Type": "Build Failure"} }' > request1.json
+            cat request1.json | jq ".projectId = $(params.project-id)" | jq . > request2.json
+            cat request2.json | jq ".title = \"Failed run: $(params.run-name).\" " | jq . > request3.json
+            curl -u tekton:$TEKTON_API_KEY \
+                 -H "Content-Type: application/json" \
+                 -d@request3.json \
+                 $(params.feedback-url)/~api/issues
+           ;;
+      esac
+    env:
+    - name: TEKTON_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: $(params.tekton-login-secret-name)
+          key: accesstoken
