@@ -38,7 +38,7 @@ spec:
         script: |
           set -x
           cat $(workspaces.source.path)/README.md
-          exit -1
+          exit 0
   finally:
     - name: notify-onedev
       params:
