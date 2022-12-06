@@ -228,7 +228,7 @@ spec:
           - name: ingress_host
             value: git.jpace121.net
           - name: ingress_tls
-            value: "false"
+            value: "true"
           - name: hibernate_dialect
             value: org.hibernate.dialect.MySQL5InnoDBDialect
           - name: hibernate_connection_driver_class

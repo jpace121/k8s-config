@@ -13,7 +13,7 @@ spec:
   - image: 192.168.1.128:8443/curl:latest
     script: |
       #!/usr/bin/env bash
-      set -ex
+      set -e
 
       case "$(params.status)" in
          "Succeeded" | "Completed")
