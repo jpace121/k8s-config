@@ -1,6 +1,6 @@
 # A pipeline to build j7s-os images.
 # Steps:
-#   Clone the j7s-os repo from gitea.
+#   Clone the j7s-os repo from onedev.
 #   Call make <> in the repo.
 #   Build and push a new deployment container.
 #   Deploy the deployment container as a service.
@@ -18,6 +18,10 @@ spec:
   - name: short-name
     type: string
     description: A short name for this image from which other names a derived. (aka j7-os)
+  - name: branch
+    type: string
+    default: main
+    description: branch of j7s-os image to build.
   workspaces:
   - name: shared-data
     description: Shared data.
@@ -34,7 +38,7 @@ spec:
     - name: url
       value: ssh://git@git.jpace121.net:2222/public/j7s-os
     - name: branch
-      value: main
+      value: $(params.branch)
     taskRef:
       name: j7s-git-clone
   - name: image-build

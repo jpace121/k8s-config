@@ -22,4 +22,6 @@ spec:
     value: cs9-qemu-minimal-ostree.x86_64.repo
   - name: short-name
     value: j7s-os
+  - name: branch
+    value: main
   serviceAccountName: internal-kubectl

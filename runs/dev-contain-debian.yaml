@@ -24,4 +24,4 @@ spec:
   - name: branch
     value: "packaging/debian"
   - name: deploy
-    value: "false"
+    value: "true"
