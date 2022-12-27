@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: ostree-package-
+spec:
+  pipelineRef:
+    name: ostree-package-pipeline
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  - name: git-credentials
+    secret:
+      secretName: git-credentials
+  - name: deploy-credentials
+    secret:
+      secretName: deploy-credentials
+  params:
+  - name: deploy
+    value: "true"
