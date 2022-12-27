@@ -24,5 +24,5 @@ spec:
       ansible-playbook -vvvv --skip-tags deploy -i $(params.ansible-file-path)/inventory.yaml $(params.ansible-file-path)/build.yaml
 
       if [[ $(params.deploy) == "true" ]]; then
-        ansible-playbook -vvvv --tags deploy -i inventory.yaml build.yaml
+        ansible-playbook -vvvv --tags deploy -i $(params.ansible-file-path)/inventory.yaml $(params.ansible-file-path)/build.yaml
       fi
