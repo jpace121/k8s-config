@@ -48,5 +48,7 @@ spec:
     params:
     - name: deploy
       value: $(params.deploy)
+    - name: ansible-file-path
+      value: .
     taskRef:
       name: j7s-ansible-build
