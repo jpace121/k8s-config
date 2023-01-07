@@ -218,7 +218,7 @@ spec:
           volumeMounts:
           - mountPath: "/opt/onedev"
             name: onedev
-          image: "1dev/server:7.8.5"
+          image: "1dev/server:7.9.2"
           ports:
             - containerPort: 6610
             - containerPort: 6611
